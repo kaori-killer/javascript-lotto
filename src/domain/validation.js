@@ -1,46 +1,66 @@
 import CONFIG from '../constants/config.js';
-import { ERROR } from '../constants/message.js';
+
+const ERROR_MESSAGES = Object.freeze({
+  MONEY: Object.freeze({
+    EMPTY_VALUE: '로또 구입 금액은 0원 이하일 수 없다.',
+    REST_VALUE: '로또 구입 금액은 1,000원으로 나눠떨어져야 한다.',
+  }),
+  LOTTO: Object.freeze({
+    NUMBER: Object.freeze({
+      QUANTITY: '로또 번호는 6자리여야 한다.',
+      RANGE: '로또 번호의 숫자 범위 1 ~ 45이다.',
+      DUPLICATION: '로또 번호의 숫자는 중복될 수 없다.',
+    }),
+    BONUS: Object.freeze({
+      RANGE: '보너스 번호의 숫자 범위 1 ~ 45이다.',
+      DUPLICATION: '보너스 번호는 당첨 로또에 있는 숫자와 중복되면 안된다.',
+    }),
+  }),
+  RESTART: Object.freeze({
+    YES_OR_NO: 'y 혹은 n 중에 하나를 입력해주세요.',
+  }),
+});
 
 function validateMoney(money) {
   if (money <= CONFIG.INITIAL_NUMBER) {
-    throw new Error(ERROR.MONEY.EMPTY_VALUE);
+    throw new Error(ERROR_MESSAGES.MONEY.EMPTY_VALUE);
   }
-  if (money % CONFIG.LOTTO_PRICE !== CONFIG.INITIAL_NUMBER) {
-    throw new Error(ERROR.MONEY.REST_VALUE);
+  if (money % CONFIG.LOTTO.PRICE !== CONFIG.INITIAL_NUMBER) {
+    throw new Error(ERROR_MESSAGES.MONEY.REST_VALUE);
   }
 }
 
 function lottoNumberCondition(number) {
-  return number >= CONFIG.MIN.LOTTO_NUMBER && number <= CONFIG.MAX.LOTTO_NUMBER;
+  return number >= CONFIG.LOTTO.NUMBER.MIN && number <= CONFIG.LOTTO.NUMBER.MAX;
 }
 
 function validateLottoNumber(numbers) {
-  if (numbers.length !== CONFIG.MAX.LOTTO_LENGTH) {
-    throw new Error(ERROR.LOTTO_NUMBER.QUANTITY);
+  if (numbers.length !== CONFIG.LOTTO.NUMBER.LENGTH) {
+    throw new Error(ERROR_MESSAGES.LOTTO.NUMBER.QUANTITY);
   }
 
   if (!numbers.every(lottoNumberCondition)) {
-    throw new Error(ERROR.LOTTO_NUMBER.RANGE);
+    throw new Error(ERROR_MESSAGES.LOTTO.NUMBER.RANGE);
   }
 
-  if (new Set(numbers).size !== CONFIG.MAX.LOTTO_LENGTH) {
-    throw new Error(ERROR.LOTTO_NUMBER.DUPLICATION);
+  if (new Set(numbers).size !== CONFIG.LOTTO.NUMBER.LENGTH) {
+    throw new Error(ERROR_MESSAGES.LOTTO.NUMBER.DUPLICATION);
   }
 }
 
 function validateBonus(bonus, winningLotto) {
   if (!lottoNumberCondition(bonus)) {
-    throw new Error(ERROR.BONUS.RANGE);
+    throw new Error(ERROR_MESSAGES.LOTTO.BONUS.RANGE);
   }
 
   if (winningLotto.includes(bonus)) {
-    throw new Error(ERROR.BONUS.DUPLICATION);
+    throw new Error(ERROR_MESSAGES.LOTTO.BONUS.DUPLICATION);
   }
 }
 
 function validateRestart(lowerCaseInput) {
-  if (lowerCaseInput !== 'y' && lowerCaseInput !== 'n') {
-    throw new Error(ERROR.RESTART.YES_OR_NO);
+  if (lowerCaseInput !== CONFIG.ANSWER_YES && lowerCaseInput !== CONFIG.ANSWER_NO) {
+    throw new Error(ERROR_MESSAGES.RESTART.YES_OR_NO);
   }
 }
 
