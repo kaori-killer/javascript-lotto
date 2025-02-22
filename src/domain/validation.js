@@ -35,7 +35,7 @@ function lottoNumberCondition(number) {
 }
 
 function validateLottoNumber(numbers) {
-  if (numbers.length !== CONFIG.LOTTO.NUMBER.LENGTH) {
+  if (numbers.length !== CONFIG.LOTTO.LENGTH) {
     throw new Error(ERROR_MESSAGES.LOTTO.NUMBER.QUANTITY);
   }
 
@@ -43,7 +43,7 @@ function validateLottoNumber(numbers) {
     throw new Error(ERROR_MESSAGES.LOTTO.NUMBER.RANGE);
   }
 
-  if (new Set(numbers).size !== CONFIG.LOTTO.NUMBER.LENGTH) {
+  if (new Set(numbers).size !== CONFIG.LOTTO.LENGTH) {
     throw new Error(ERROR_MESSAGES.LOTTO.NUMBER.DUPLICATION);
   }
 }
@@ -59,7 +59,7 @@ function validateBonus(bonus, winningLotto) {
 }
 
 function validateRestart(lowerCaseInput) {
-  if (lowerCaseInput !== CONFIG.ANSWER_YES && lowerCaseInput !== CONFIG.ANSWER_NO) {
+  if (lowerCaseInput !== CONFIG.ANSWER.YES && lowerCaseInput !== CONFIG.ANSWER.NO) {
     throw new Error(ERROR_MESSAGES.RESTART.YES_OR_NO);
   }
 }

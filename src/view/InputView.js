@@ -51,7 +51,7 @@ const InputView = {
       const input = await readLineAsync(INPUT_MESSAGES.READ_RESTART);
       const lowerCaseInput = input.toLowerCase();
       validateRestart(lowerCaseInput);
-      return !(lowerCaseInput === CONFIG.ANSWER_NO) && lowerCaseInput === CONFIG.ANSWER_YES;
+      return !(lowerCaseInput === CONFIG.ANSWER.NO) && lowerCaseInput === CONFIG.ANSWER.YES;
     } catch (error) {
       OutputView.printErrorMessage(error.message);
       return this.readReStart();

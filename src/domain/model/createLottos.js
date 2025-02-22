@@ -4,13 +4,13 @@ import pickNumberInList from '../../utils/pickNumberInList.js';
 
 function createLotto() {
   const randomNumbers = pickNumberInList(
-    CONFIG.MIN.LOTTO_NUMBER,
-    CONFIG.MAX.LOTTO_NUMBER,
+    CONFIG.LOTTO.NUMBER.MIN,
+    CONFIG.LOTTO.NUMBER.MAX,
   );
   return new Lotto(randomNumbers);
 }
 
 export default function createLottos(money) {
-  const quantity = money / CONFIG.LOTTO_PRICE;
+  const quantity = money / CONFIG.LOTTO.PRICE;
   return Array.from({ length: quantity }).map(() => createLotto());
 }

@@ -23,16 +23,16 @@ class LottoStatistics {
   }
 
   determineRank(sameNumberCount, isIncludedBonusNumber) {
-    if (sameNumberCount === CONFIG.SECOND_PRIZE_MATCH_COUNT && isIncludedBonusNumber) {
-      return this.increaseCount(sameNumberCount, CONFIG.RANK_OBJECT_KEY.BONUS(sameNumberCount));
+    if (sameNumberCount === CONFIG.RANK.SECOND_PRIZE_MATCH_COUNT && isIncludedBonusNumber) {
+      return this.increaseCount(sameNumberCount, CONFIG.RANK.OBJECT_KEY.BONUS(sameNumberCount));
     }
 
-    return this.increaseCount(sameNumberCount, CONFIG.RANK_OBJECT_KEY.NORMAL(sameNumberCount));
+    return this.increaseCount(sameNumberCount, CONFIG.RANK.OBJECT_KEY.NORMAL(sameNumberCount));
   }
 
   increaseCount(sameCount, name) {
     const ONE_TICKET = 1;
-    if (sameCount < CONFIG.MIN.RANK_COUNT) {
+    if (sameCount < CONFIG.RANK.MIN_COUNT) {
       return;
     }
     this.#rankResult[name].count += ONE_TICKET;
