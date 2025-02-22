@@ -12,6 +12,11 @@ const INPUT_MESSAGES = Object.freeze({
   READ_RESTART: `${CONFIG.NEW_LINE}> 다시 시작하시겠습니까? (y/n)`,
 });
 
+async function reRead(error, method) {
+  OutputView.printErrorMessage(error.message);
+  return await method();
+}
+
 const InputView = {
   async readMoney() {
     try {
@@ -20,8 +25,7 @@ const InputView = {
       validateMoney(money);
       return money;
     } catch (error) {
-      OutputView.printErrorMessage(error.message);
-      return this.readMoney();
+      return reRead(error, this.readMoney);
     }
   },
   async readWinningNumber() {
@@ -31,8 +35,7 @@ const InputView = {
       validateLottoNumber(winningLotto);
       return winningLotto;
     } catch (error) {
-      OutputView.printErrorMessage(error.message);
-      return this.readWinningNumber();
+      return reRead(error, this.readWinningNumber);
     }
   },
   async readBonusNumber(winningLotto) {
@@ -42,8 +45,7 @@ const InputView = {
       validateBonus(bonus, winningLotto);
       return bonus;
     } catch (error) {
-      OutputView.printErrorMessage(error.message);
-      return this.readBonusNumber(winningLotto);
+      return reRead(error, () => this.readBonusNumber(winningLotto));
     }
   },
   async readReStart() {
@@ -53,8 +55,7 @@ const InputView = {
       validateRestart(lowerCaseInput);
       return !(lowerCaseInput === CONFIG.ANSWER.NO) && lowerCaseInput === CONFIG.ANSWER.YES;
     } catch (error) {
-      OutputView.printErrorMessage(error.message);
-      return this.readReStart();
+      return reRead(error, this.readReStart);
     }
   },
 };
