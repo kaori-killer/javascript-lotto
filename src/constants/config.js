@@ -22,6 +22,7 @@ const CONFIG = Object.freeze({
     YES: 'y',
     NO: 'n',
   }),
+  NEW_LINE: '\n',
 });
 
 export default CONFIG;

@@ -7,9 +7,9 @@ import OutputView from './OutputView.js';
 
 const INPUT_MESSAGES = Object.freeze({
   READ_MONEY: '> 구입금액을 입력해 주세요.',
-  READ_WINNING_LOTTO: '\n> 당첨 번호를 입력해 주세요.',
-  READ_BONUS: '\n> 보너스 번호를 입력해 주세요.',
-  READ_RESTART: '\n> 다시 시작하시겠습니까? (y/n)',
+  READ_WINNING_LOTTO: `${CONFIG.NEW_LINE}> 당첨 번호를 입력해 주세요.`,
+  READ_BONUS: `${CONFIG.NEW_LINE}> 보너스 번호를 입력해 주세요.`,
+  READ_RESTART: `${CONFIG.NEW_LINE}> 다시 시작하시겠습니까? (y/n)`,
 });
 
 const InputView = {
