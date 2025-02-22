@@ -1,54 +1,52 @@
-import CONFIG from '../constants/config.js';
-
 import OutputView from '../view/OutputView.js';
 import InputView from '../view/InputView.js';
 
-import Machine from '../domain/model/Machine.js';
 import LottoStatistics from '../domain/model/LottoStatistics.js';
+import createLottos from '../domain/model/createLottos.js';
+import calculateRevenueRate from '../domain/model/calculateRevenueRate.js';
 
 class Controller {
-  #machine;
-
   #lottoStatistics;
 
-  #money;
-
   constructor() {
-    this.#machine = new Machine();
     this.#lottoStatistics = new LottoStatistics();
-    this.#money = CONFIG.INITIAL_NUMBER;
   }
 
   async start() {
-    await this.buyLottos();
-    await this.statisticsLottos();
-    this.makeProfit();
+    const money = await InputView.readMoney();
+
+    const userLottos = await this.buyUserLottos(money);
+    OutputView.printUserLottos(userLottos);
+
+    const statisticsResult = await this.getStatisticsResult(userLottos);
+    OutputView.printStatisticsResult(statisticsResult);
+
+    const revenueRate = this.getRevenueRate(money);
+    OutputView.printRevenueRate(revenueRate);
+
     await this.restart();
   }
 
-  async buyLottos() {
-    this.#money = await InputView.readMoney();
-    this.#machine.createLottos(this.#money);
-    OutputView.printLottoQuantity(this.#machine.getLottoQuantity());
-    this.#machine.getLottos().forEach((lotto) => (
-      OutputView.printSingleLotto(lotto.getNumbers())
-    ));
+  async buyUserLottos(money) {
+    const userLottos = createLottos(money);
+    return userLottos;
   }
 
-  async statisticsLottos() {
-    const winningLotto = await InputView.readWinningLotto();
-    const bonus = await InputView.readBonus(winningLotto);
-    const winningNumber = { bonus, lotto: winningLotto };
-    this.#lottoStatistics.compareLottos(this.#machine.getLottos(), winningNumber);
-    const rankResult = this.#lottoStatistics.getRankResult();
-    OutputView.printRankResultHeadLine();
-    Object.keys(rankResult).forEach((key) => { OutputView.printRankResult(key, rankResult[key]); });
+  async getStatisticsResult(userLottos) {
+    const winningNumber = await InputView.readWinningNumber();
+    const bonusNumber = await InputView.readBonusNumber(winningNumber);
+    const winningLotto = { bonusNumber, lottoNumber: winningNumber };
+    const statisticsResult = this.#lottoStatistics.compareLottos(
+      userLottos,
+      winningLotto,
+    );
+    return statisticsResult;
   }
 
-  async makeProfit() {
-    const profit = this.#lottoStatistics.getProfit();
-    const revenueRate = this.#lottoStatistics.calculateRevenueRate(profit, this.#money);
-    OutputView.printRevenueRate(revenueRate);
+  getRevenueRate(money) {
+    const profit = this.#lottoStatistics.calculateProfit();
+    const revenueRate = calculateRevenueRate(profit, money);
+    return revenueRate;
   }
 
   async restart() {

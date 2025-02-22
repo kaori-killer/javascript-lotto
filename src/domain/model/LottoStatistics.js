@@ -13,33 +13,21 @@ class LottoStatistics {
     };
   }
 
-  getRankResult() {
+  compareLottos(userLottos, winningLotto) {
+    userLottos.forEach((userLotto) => {
+      const sameNumberCount = userLotto.countSameNumber(winningLotto.lottoNumber);
+      const isIncludedBonusNumber = userLotto.hasNumber(winningLotto.bonusNumber);
+      this.determineRank(sameNumberCount, isIncludedBonusNumber);
+    });
     return this.#rankResult;
   }
 
-  compareLottos(machineLottos, winningNumber) {
-    machineLottos.forEach((machineLotto) => {
-      const machineLottoNumbers = machineLotto.getNumbers();
-      const sameCount = this.matchSameCount(machineLottoNumbers, winningNumber.lotto);
-      const isBonusNumber = this.hasBonusNumber(machineLottoNumbers, winningNumber.bonus);
-      this.determineRank(sameCount, isBonusNumber);
-    });
-  }
-
-  determineRank(sameCount, isBonusNumber) {
-    if (sameCount === CONFIG.SECOND_PRIZE_MATCH_COUNT && isBonusNumber) {
-      return this.increaseCount(sameCount, CONFIG.RANK_OBJECT_KEY.BONUS(sameCount));
+  determineRank(sameNumberCount, isIncludedBonusNumber) {
+    if (sameNumberCount === CONFIG.SECOND_PRIZE_MATCH_COUNT && isIncludedBonusNumber) {
+      return this.increaseCount(sameNumberCount, CONFIG.RANK_OBJECT_KEY.BONUS(sameNumberCount));
     }
 
-    return this.increaseCount(sameCount, CONFIG.RANK_OBJECT_KEY.NORMAL(sameCount));
-  }
-
-  hasBonusNumber(machineLotto, bonus) {
-    return machineLotto.includes(bonus);
-  }
-
-  matchSameCount(machineLotto, winningLotto) {
-    return machineLotto.filter((number) => winningLotto.includes(number)).length;
+    return this.increaseCount(sameNumberCount, CONFIG.RANK_OBJECT_KEY.NORMAL(sameNumberCount));
   }
 
   increaseCount(sameCount, name) {
@@ -50,11 +38,7 @@ class LottoStatistics {
     this.#rankResult[name].count += ONE_TICKET;
   }
 
-  calculateRevenueRate(profit, investmentCost) {
-    return Number(((profit / investmentCost) * 100).toFixed(1));
-  }
-
-  getProfit() {
+  calculateProfit() {
     return Object.keys(this.#rankResult).reduce(
       (acc, key) => acc + (this.#rankResult[key].price * this.#rankResult[key].count),
       CONFIG.INITIAL_NUMBER,

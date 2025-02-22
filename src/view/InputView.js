@@ -18,7 +18,7 @@ const InputView = {
       return this.readMoney();
     }
   },
-  async readWinningLotto() {
+  async readWinningNumber() {
     try {
       const input = await readLineAsync(INPUT_MESSAGE.READ_WINNING_LOTTO);
       const winningLotto = input?.split(',').map((item) => parseInt(item, CONFIG.DECIMAL));
@@ -26,10 +26,10 @@ const InputView = {
       return winningLotto;
     } catch (error) {
       OutputView.printErrorMessage(error.message);
-      return this.readWinningLotto();
+      return this.readWinningNumber();
     }
   },
-  async readBonus(winningLotto) {
+  async readBonusNumber(winningLotto) {
     try {
       const input = await readLineAsync(INPUT_MESSAGE.READ_BONUS);
       const bonus = parseInt(input, CONFIG.DECIMAL);
@@ -37,7 +37,7 @@ const InputView = {
       return bonus;
     } catch (error) {
       OutputView.printErrorMessage(error.message);
-      return this.readBonus(winningLotto);
+      return this.readBonusNumber(winningLotto);
     }
   },
   async readReStart() {
