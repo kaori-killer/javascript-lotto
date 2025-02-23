@@ -41,7 +41,7 @@ class LottoStatistics {
   calculateProfit() {
     return Object.keys(this.#rankResult).reduce(
       (acc, key) => acc + (this.#rankResult[key].price * this.#rankResult[key].count),
-      CONFIG.INITIAL_NUMBER,
+      CONFIG.INITIAL_PROFIT,
     );
   }
 }

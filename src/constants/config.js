@@ -16,7 +16,8 @@ const CONFIG = Object.freeze({
     }),
 
   }),
-  INITIAL_NUMBER: 0,
+  INITIAL_MONEY: 0,
+  INITIAL_PROFIT: 0,
   DECIMAL: 10,
   ANSWER: Object.freeze({
     YES: 'y',

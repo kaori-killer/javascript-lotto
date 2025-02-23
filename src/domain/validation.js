@@ -22,10 +22,11 @@ const ERROR_MESSAGES = Object.freeze({
 });
 
 function validateMoney(money) {
-  if (money <= CONFIG.INITIAL_NUMBER) {
+  const ZERO = 0;
+  if (money <= CONFIG.INITIAL_MONEY) {
     throw new Error(ERROR_MESSAGES.MONEY.EMPTY_VALUE);
   }
-  if (money % CONFIG.LOTTO.PRICE !== CONFIG.INITIAL_NUMBER) {
+  if (money % CONFIG.LOTTO.PRICE !== ZERO) {
     throw new Error(ERROR_MESSAGES.MONEY.REST_VALUE);
   }
 }
