@@ -15,7 +15,7 @@ class LottoStatistics {
 
   compareLottos(userLottos, winningLotto) {
     userLottos.forEach((userLotto) => {
-      const sameNumberCount = userLotto.countSameNumber(winningLotto.lottoNumber);
+      const sameNumberCount = userLotto.getMatchedNumberCount(winningLotto.lottoNumber);
       const isIncludedBonusNumber = userLotto.hasNumber(winningLotto.bonusNumber);
       this.determineRank(sameNumberCount, isIncludedBonusNumber);
     });

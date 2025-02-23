@@ -45,7 +45,7 @@ test('사용자가 구매한 로또 번호와 당첨 번호의 일치 개수를 
 
   const lotto = new Lotto(lottoNumbers);
 
-  expect(lotto.countSameNumber([1, 2, 24, 33, 34, 45])).toBe(3);
+  expect(lotto.getMatchedNumberCount([1, 2, 24, 33, 34, 45])).toBe(3);
 });
 
 });
