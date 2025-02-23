@@ -3,10 +3,11 @@ import Lotto from './Lotto.js';
 import pickNumberInList from '../../utils/pickNumberInList.js';
 
 function createLotto() {
-  const randomNumbers = pickNumberInList(
-    CONFIG.LOTTO.NUMBER.MIN,
-    CONFIG.LOTTO.NUMBER.MAX,
-  );
+  const randomNumbers = pickNumberInList({
+    min: CONFIG.LOTTO.NUMBER.MIN,
+    max: CONFIG.LOTTO.NUMBER.MAX,
+    length: CONFIG.LOTTO.LENGTH,
+  });
   return new Lotto(randomNumbers);
 }
 
