@@ -8,11 +8,12 @@ import calculateRevenueRate from '../domain/model/calculateRevenueRate.js';
 class Controller {
   #lottoStatistics;
 
-  constructor() {
+  init() {
     this.#lottoStatistics = new LottoStatistics();
   }
 
   async start() {
+    this.init();
     const money = await InputView.readMoney();
 
     const userLottos = await this.buyUserLottos(money);
