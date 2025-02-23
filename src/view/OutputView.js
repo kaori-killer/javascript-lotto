@@ -1,4 +1,4 @@
-import normalizeErrorMessage from './utils/normalizeErrorMessage';
+import normalizeErrorMessage from './utils/normalizeErrorMessage.js';
 
 const OUTPUT_MESSAGES = Object.freeze({
   LOTTO_QUANTITY: (quantity) => `${quantity}개를 구매했습니다.`,
