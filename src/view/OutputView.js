@@ -1,4 +1,4 @@
-const ERROR_MESSAGE_NORMALIZATION = (message) => `[ERROR] ${message}`;
+import normalizeErrorMessage from './utils/normalizeErrorMessage';
 
 const OUTPUT_MESSAGES = Object.freeze({
   LOTTO_QUANTITY: (quantity) => `${quantity}개를 구매했습니다.`,
@@ -39,7 +39,7 @@ const OutputView = {
     console.log(OUTPUT_MESSAGES.REVENUE_RATE(revenueRate));
   },
   printErrorMessage(message) {
-    console.log(ERROR_MESSAGE_NORMALIZATION(message));
+    console.log(normalizeErrorMessage(message));
   },
 };
 
