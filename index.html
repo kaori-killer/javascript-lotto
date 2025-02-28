@@ -4,13 +4,85 @@
     <meta charset="UTF-8" />
     <title>🎱 행운의 로또</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-    <script type="module" crossorigin src="/javascript-lotto/assets/index-DaKOjhqt.js"></script>
+    <script type="module" crossorigin src="/javascript-lotto/assets/index-BhMxnsEz.js"></script>
+    <link rel="stylesheet" crossorigin href="/javascript-lotto/assets/index-D5b8DzTm.css">
   </head>
-
   <body>
-    <div id="app">
-      <h1>🎱 행운의 로또</h1>
-    </div>
+    <header class="header-box">
+      <h1 class="header-text">🎱 행운의 로또</h1>
+    </header>
+    <div class="root">
+      <div class="app">
+        <div class="lotto-box">
+          <h2 class="page-title">🎱 내 번호 당첨 확인 🎱</h2>
+          <div class="lotto-top">
+            <div class="input-container">
+                <span class="input-title">구입할 금액을 입력해주세요.</span>
+                <div class="input-box">
+                  <input class="input-basic w-75" id="user-money" type="text" placeholder="금액" value="7000"/>
+                  <div class="button-box w-20">
+                    <span class="button-text" id="purchase-button">구입</span>
+                  </div>
+                </div>
+              </div>
+          </div>
+          <div class="lotto-middle">
+            <div class="lotto-item-quantity">
+            </div>
+            <div class="lotto-item-container">
+            </div>
+          </div>
+          <div class="lotto-bottom">
+            <span>지난 주 당첨번호 6개와 보너스 번호 1개를 입력해주세요.</span>
+            <div class="flex-base flex-space-between">
+              <div class="input-container">
+                <span class="input-title input-title-number">당첨 번호</span>
+                <div class="input-box mt-5">
+                  <input class="input-basic input-winning-number" type="text" value="1"/>
+                  <input class="input-basic input-winning-number" type="text" value="2"/>
+                  <input class="input-basic input-winning-number" type="text" value="3"/>
+                  <input class="input-basic input-winning-number" type="text" value="4"/>
+                  <input class="input-basic input-winning-number" type="text" value="5"/>
+                  <input class="input-basic input-winning-number" type="text" value="6"/>
+                </div>
+              </div>
+              <div class="input-container">
+                <span class="input-title input-title-number">보너스 번호</span>
+                <div class="input-box input-container-bonus-number mt-5">
+                  <input class="input-basic" id="input-bonus-number" type="text" value="9"/>
+                </div>
+              </div>  
+            </div>
+            <div class="button-box">
+              <span class="button-text" id="result-button">결과 확인하기</span>
+            </div>
+          </div>
+        </div>
+      </div>   
+    </div>     
+    <div class="modal-dimmed modal-close"> 
+      <div class="modal modal-close">
+        <div class="flex-base flex-center">
+          <h2 class="page-title">🏆 당첨 통계 🏆</h2>
+          <span class="button-right" id="reset-close-button">x</span>
+        </div>
+          <table class="modal-table">
+            <thead>
+              <tr>
+                <th>일치 갯수</th>
+                <th>당첨금</th>
+                <th>당첨 갯수</th>
+              </tr>
+            </thead>
+            <tbody class="modal-item-container">
+            </tbody>
+          </table>
+          <div class="bold-text">
+          </div>
+          <div class="button-box">
+            <span class="button-text" id="reset-button">다시 시작하기</span>
+          </div>
+      </div>
+    </div>   
   </body>
 </html>
