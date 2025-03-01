@@ -102,6 +102,7 @@ function validateMoney(money) {
   }
 }
 function lottoNumberCondition(number) {
+  console.log(number, "D");
   return number >= CONFIG.LOTTO.NUMBER.MIN && number <= CONFIG.LOTTO.NUMBER.MAX;
 }
 function validateLottoNumber(numbers) {
@@ -116,6 +117,7 @@ function validateLottoNumber(numbers) {
   }
 }
 function validateBonus(bonus, winningLotto) {
+  console.log(winningLotto);
   if (!lottoNumberCondition(bonus)) {
     throw new Error(ERROR_MESSAGES.LOTTO.BONUS.RANGE);
   }
@@ -207,83 +209,118 @@ class LottoStatistics {
 }
 _rankResult = new WeakMap();
 const normalizeErrorMessage = (message) => `[ERROR] ${message}`;
-let userMoney;
-let userLottos = [];
-const lottoStatistics = new LottoStatistics();
+function catchError(validate) {
+  try {
+    validate();
+    return false;
+  } catch (error) {
+    alert(normalizeErrorMessage(error.message));
+    return true;
+  }
+}
+const InputView = {
+  readMoney() {
+    const userMoney2 = document.querySelector("#user-money").value;
+    if (!catchError(() => validateMoney(userMoney2))) {
+      return userMoney2;
+    }
+    return false;
+  },
+  readWinningNumbers() {
+    const winningNumbers = [...document.querySelectorAll(".input-winning-number")].map((element) => Number(element.value));
+    if (!catchError(() => validateLottoNumber(winningNumbers))) {
+      return winningNumbers;
+    }
+    return false;
+  },
+  readBonusNumber(winningLotto) {
+    const bonusNumber = Number(document.querySelector("#input-bonus-number").value);
+    if (!catchError(() => validateBonus(bonusNumber, winningLotto))) {
+      return bonusNumber;
+    }
+    return false;
+  }
+};
+function createElement(type, text) {
+  const element = document.createElement(type);
+  element.innerText = text;
+  return element;
+}
 function toggleClassName(element, className) {
   if (element.classList.contains(className)) {
     return element.classList.remove(className);
   }
   return element.classList.add(className);
 }
-function toggleModal() {
-  const $modal = document.querySelector(".modal");
-  const $modalDimmed = document.querySelector(".modal-dimmed");
-  toggleClassName($modal, "modal-close");
-  toggleClassName($modalDimmed, "modal-close");
-}
-function createElement(type, text) {
-  const element = document.createElement(type);
-  element.innerText = text;
-  return element;
-}
-function printUserLottos() {
-  userLottos.forEach((userLotto) => {
-    const parent = document.querySelector(".lotto-item-container");
-    const element = createElement("p", `🎟️ ${userLotto.getNumbers().join(", ")}`);
-    parent.appendChild(element);
-  });
-}
-document.getElementById("purchase-button").addEventListener("click", () => {
-  userMoney = document.querySelector("#user-money").value;
-  try {
-    validateMoney(userMoney);
-    userLottos = createLottos(userMoney);
-    printUserLottos();
-  } catch (error) {
-    alert(normalizeErrorMessage(error.message));
+const OutputView = {
+  toggleModal() {
+    const $modal = document.querySelector(".modal");
+    const $modalDimmed = document.querySelector(".modal-dimmed");
+    toggleClassName($modal, "modal-close");
+    toggleClassName($modalDimmed, "modal-close");
+  },
+  printUserLottos(userLottos2) {
+    userLottos2.forEach((userLotto) => {
+      const $parent = document.querySelector(".lotto-item-container");
+      const $element = createElement("p", `🎟️ ${userLotto.getNumbers().join(", ")}`);
+      $parent.appendChild($element);
+    });
+  },
+  printStatisticsResult(rankResult) {
+    this.toggleModal();
+    Object.keys(rankResult).forEach((key) => {
+      const { name, price, count } = rankResult[key];
+      const parent = document.querySelector(".modal-item-container");
+      const child = createElement("tr", "");
+      child.classList.add("modal-items");
+      parent.appendChild(child);
+      let elementName = createElement("td", `${name}개`);
+      if (name === "5+1") {
+        elementName = createElement("td", "5개+보너스볼");
+      }
+      child.appendChild(elementName);
+      const elementPrice = createElement("td", `${price.toLocaleString()}원`);
+      child.appendChild(elementPrice);
+      const elementCount = createElement("td", `${count}개`);
+      child.appendChild(elementCount);
+    });
+  },
+  printRevenueRate(revenueRate) {
+    const $boldText = document.querySelector(".bold-text");
+    const $element = createElement("p", `당신의 총 수익률은 ${revenueRate}% 입니다`);
+    $boldText.appendChild($element);
+    $element.classList.add("modal-items");
   }
+};
+let userLottos;
+let userMoney;
+const lottoStatistics = new LottoStatistics();
+document.getElementById("purchase-button").addEventListener("click", () => {
+  userMoney = InputView.readMoney();
+  if (!userMoney) {
+    return;
+  }
+  userLottos = createLottos(userMoney);
+  OutputView.printUserLottos(userLottos);
 });
-function printRevenueRate(revenueRate) {
-  const $boldText = document.querySelector(".bold-text");
-  const element = createElement("p", `당신의 총 수익률은 ${revenueRate}% 입니다`);
-  $boldText.appendChild(element);
-  element.classList.add("modal-items");
-}
-function printStatisticsResult(rankResult) {
-  toggleModal();
-  Object.keys(rankResult).forEach((key) => {
-    const { name, price, count } = rankResult[key];
-    const parent = document.querySelector(".modal-item-container");
-    const child = createElement("tr", "");
-    child.classList.add("modal-items");
-    parent.appendChild(child);
-    let elementName = createElement("td", `${name}개`);
-    if (name === "5+1") {
-      elementName = createElement("td", "5개+보너스볼");
-    }
-    child.appendChild(elementName);
-    const elementPrice = createElement("td", `${price.toLocaleString()}원`);
-    child.appendChild(elementPrice);
-    const elementCount = createElement("td", `${count}개`);
-    child.appendChild(elementCount);
-  });
+function getRevenueRate() {
   const profit = lottoStatistics.calculateProfit();
   const revenueRate = calculateRevenueRate(profit, userMoney);
-  printRevenueRate(revenueRate);
+  return revenueRate;
 }
 document.getElementById("result-button").addEventListener("click", () => {
-  const bonusNumber = Number(document.querySelector("#input-bonus-number").value);
-  const winningNumbers = [...document.querySelectorAll(".input-winning-number")].map((element) => Number(element.value));
-  const winningLotto = { bonusNumber, lottoNumber: winningNumbers };
-  try {
-    validateLottoNumber(winningNumbers);
-    validateBonus(bonusNumber, winningNumbers);
-    const rankResult = lottoStatistics.compareLottos(userLottos, winningLotto);
-    printStatisticsResult(rankResult);
-  } catch (error) {
-    alert(normalizeErrorMessage(error.message));
+  const winningNumbers = InputView.readWinningNumbers();
+  if (!userLottos || !winningNumbers) {
+    return;
   }
+  const bonusNumber = InputView.readBonusNumber(winningNumbers);
+  if (!bonusNumber) {
+    return;
+  }
+  const winningLotto = { bonusNumber, lottoNumber: winningNumbers };
+  const rankResult = lottoStatistics.compareLottos(userLottos, winningLotto);
+  OutputView.printStatisticsResult(rankResult);
+  OutputView.printRevenueRate(getRevenueRate());
 });
 document.getElementById("reset-button").addEventListener("click", () => {
   location.reload(true);
@@ -293,5 +330,5 @@ document.getElementById("reset-close-button").addEventListener("click", () => {
     element.remove();
   });
   lottoStatistics.init();
-  toggleModal();
+  OutputView.toggleModal();
 });
