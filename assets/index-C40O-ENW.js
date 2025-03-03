@@ -299,6 +299,11 @@ const LottoResultView = {
     $element.classList.add("modal-items");
   }
 };
+function changeButtonStatus(identifier) {
+  const element = document.querySelector(identifier);
+  element.disabled = true;
+  element.classList.add("button-disabled");
+}
 class LottoGame {
   constructor() {
     this.userLottos = null;
@@ -310,6 +315,7 @@ class LottoGame {
     if (!this.userMoney) {
       return;
     }
+    changeButtonStatus("#purchase-button");
     this.userLottos = createLottos(this.userMoney);
     LottoFormView.renderUserLottos(this.userLottos);
     LottoFormView.renderWinningLotto();
@@ -329,8 +335,8 @@ class LottoGame {
       return;
     }
     const winningLotto = { bonusNumber, lottoNumber: winningNumbers };
-    console.log(this.lottoStatistics);
     const rankResult = this.lottoStatistics.compareLottos(this.userLottos, winningLotto);
+    changeButtonStatus("#result-button");
     LottoResultView.toggleModal();
     LottoResultView.renderStatisticsResult(rankResult);
     LottoResultView.renderRevenueRate(this.getRevenueRate());
