@@ -48,7 +48,10 @@ function calculateRevenueRate(profit, investmentCost) {
 }
 const CONFIG = Object.freeze({
   LOTTO: Object.freeze({
-    PRICE: 1e3,
+    PRICE: Object.freeze({
+      MIN: 1e3,
+      MAX: 1e5
+    }),
     LENGTH: 6,
     NUMBER: Object.freeze({
       MIN: 1,
@@ -74,35 +77,37 @@ const CONFIG = Object.freeze({
 });
 const ERROR_MESSAGES = Object.freeze({
   MONEY: Object.freeze({
-    EMPTY_VALUE: "로또 구입 금액은 0원 이하일 수 없다.",
-    REST_VALUE: "로또 구입 금액은 1,000원으로 나눠떨어져야 한다."
+    EMPTY_VALUE: `로또 구입 금액은 ${CONFIG.LOTTO.PRICE.MIN}원 이하일 수 없다.`,
+    REST_VALUE: `로또 구입 금액은 ${CONFIG.LOTTO.PRICE.MIN}원으로 나눠떨어져야 한다.`,
+    MAX_VALUE: `로또 구입 금액은 ${CONFIG.LOTTO.PRICE.MAX}원 이하만 가능하다.`
   }),
   LOTTO: Object.freeze({
     NUMBER: Object.freeze({
-      QUANTITY: "로또 번호는 6자리여야 한다.",
-      RANGE: "로또 번호의 숫자 범위 1 ~ 45이다.",
+      QUANTITY: `로또 번호는 ${CONFIG.LOTTO.LENGTH}자리여야 한다.`,
+      RANGE: `로또 번호의 숫자 범위는 ${CONFIG.LOTTO.NUMBER.MIN} ~ ${CONFIG.LOTTO.NUMBER.MAX}이다.`,
       DUPLICATION: "로또 번호의 숫자는 중복될 수 없다."
     }),
     BONUS: Object.freeze({
-      RANGE: "보너스 번호의 숫자 범위 1 ~ 45이다.",
+      RANGE: `보너스 번호의 숫자 범위는 ${CONFIG.LOTTO.NUMBER.MIN} ~ ${CONFIG.LOTTO.NUMBER.MAX}이다.`,
       DUPLICATION: "보너스 번호는 당첨 로또에 있는 숫자와 중복되면 안된다."
     })
   }),
   RESTART: Object.freeze({
-    YES_OR_NO: "y 혹은 n 중에 하나를 입력해주세요."
+    YES_OR_NO: `${CONFIG.ANSWER.YES} 혹은 ${CONFIG.ANSWER.NO} 중에 하나를 입력해주세요.`
   })
 });
 function validateMoney(money) {
-  const ZERO = 0;
   if (money <= CONFIG.INITIAL_MONEY) {
     throw new Error(ERROR_MESSAGES.MONEY.EMPTY_VALUE);
   }
-  if (money % CONFIG.LOTTO.PRICE !== ZERO) {
+  if (money % CONFIG.LOTTO.PRICE.MIN !== 0) {
     throw new Error(ERROR_MESSAGES.MONEY.REST_VALUE);
+  }
+  if (money > CONFIG.LOTTO.PRICE.MAX) {
+    throw new Error(ERROR_MESSAGES.MONEY.MAX_VALUE);
   }
 }
 function lottoNumberCondition(number) {
-  console.log(number, "D");
   return number >= CONFIG.LOTTO.NUMBER.MIN && number <= CONFIG.LOTTO.NUMBER.MAX;
 }
 function validateLottoNumber(numbers) {
@@ -117,7 +122,6 @@ function validateLottoNumber(numbers) {
   }
 }
 function validateBonus(bonus, winningLotto) {
-  console.log(winningLotto);
   if (!lottoNumberCondition(bonus)) {
     throw new Error(ERROR_MESSAGES.LOTTO.BONUS.RANGE);
   }
@@ -142,22 +146,22 @@ class Lotto {
   }
 }
 _numbers = new WeakMap();
-function pickNumberInList({ min, max, length }) {
+function pickNumberInList({ min, max, maxLength }) {
   const randomNumbers = /* @__PURE__ */ new Set();
-  while (randomNumbers.size < length) {
+  while (randomNumbers.size < maxLength) {
     const randomNumber = Math.floor(Math.random() * (max - min + 1)) + min;
     randomNumbers.add(randomNumber);
   }
   return [...randomNumbers];
 }
 function getLottoQuantity(money) {
-  return money / CONFIG.LOTTO.PRICE;
+  return money / CONFIG.LOTTO.PRICE.MIN;
 }
 function createLotto() {
   const randomNumbers = pickNumberInList({
     min: CONFIG.LOTTO.NUMBER.MIN,
     max: CONFIG.LOTTO.NUMBER.MAX,
-    length: CONFIG.LOTTO.LENGTH
+    maxLength: CONFIG.LOTTO.LENGTH
   });
   return new Lotto(randomNumbers);
 }
@@ -179,8 +183,8 @@ class LottoStatistics {
       "6개 일치": { name: "6", count: 0, price: 2e9 }
     });
   }
-  compareLottos(userLottos2, winningLotto) {
-    userLottos2.forEach((userLotto) => {
+  compareLottos(userLottos, winningLotto) {
+    userLottos.forEach((userLotto) => {
       const sameNumberCount = userLotto.getMatchedNumberCount(winningLotto.lottoNumber);
       const isIncludedBonusNumber = userLotto.hasNumber(winningLotto.bonusNumber);
       this.determineRank(sameNumberCount, isIncludedBonusNumber);
@@ -218,11 +222,22 @@ function catchError(validate) {
     return true;
   }
 }
-const InputView = {
+function toggleClassName(element, className) {
+  if (element.classList.contains(className)) {
+    return element.classList.remove(className);
+  }
+  return element.classList.add(className);
+}
+function createElement(type, text) {
+  const element = document.createElement(type);
+  element.innerText = text;
+  return element;
+}
+const LottoFormView = {
   readMoney() {
-    const userMoney2 = document.querySelector("#user-money").value;
-    if (!catchError(() => validateMoney(userMoney2))) {
-      return userMoney2;
+    const userMoney = document.querySelector("#user-money").value;
+    if (!catchError(() => validateMoney(userMoney))) {
+      return userMoney;
     }
     return false;
   },
@@ -239,96 +254,97 @@ const InputView = {
       return bonusNumber;
     }
     return false;
-  }
-};
-function createElement(type, text) {
-  const element = document.createElement(type);
-  element.innerText = text;
-  return element;
-}
-function toggleClassName(element, className) {
-  if (element.classList.contains(className)) {
-    return element.classList.remove(className);
-  }
-  return element.classList.add(className);
-}
-const OutputView = {
-  toggleModal() {
-    const $modal = document.querySelector(".modal");
-    const $modalDimmed = document.querySelector(".modal-dimmed");
-    toggleClassName($modal, "modal-close");
-    toggleClassName($modalDimmed, "modal-close");
   },
-  printUserLottos(userLottos2) {
-    userLottos2.forEach((userLotto) => {
+  renderWinningLotto() {
+    const $lottoBottom = document.querySelector(".lotto-bottom");
+    toggleClassName($lottoBottom, "hidden");
+  },
+  renderUserLottos(userLottos) {
+    userLottos.forEach((userLotto) => {
       const $parent = document.querySelector(".lotto-item-container");
       const $element = createElement("p", `🎟️ ${userLotto.getNumbers().join(", ")}`);
       $parent.appendChild($element);
     });
+  }
+};
+const LottoResultView = {
+  toggleModal() {
+    const $modal = document.querySelector(".modal");
+    const $modalDimmed = document.querySelector(".modal-dimmed");
+    toggleClassName($modal, "hidden");
+    toggleClassName($modalDimmed, "hidden");
   },
-  printStatisticsResult(rankResult) {
-    this.toggleModal();
+  renderStatisticsResult(rankResult) {
+    const parent = document.querySelector(".modal-item-container");
     Object.keys(rankResult).forEach((key) => {
-      const { name, price, count } = rankResult[key];
-      const parent = document.querySelector(".modal-item-container");
-      const child = createElement("tr", "");
-      child.classList.add("modal-items");
-      parent.appendChild(child);
-      let elementName = createElement("td", `${name}개`);
-      if (name === "5+1") {
-        elementName = createElement("td", "5개+보너스볼");
-      }
-      child.appendChild(elementName);
-      const elementPrice = createElement("td", `${price.toLocaleString()}원`);
-      child.appendChild(elementPrice);
-      const elementCount = createElement("td", `${count}개`);
-      child.appendChild(elementCount);
+      const row = this.createStatisticsRow(rankResult[key]);
+      parent.appendChild(row);
     });
   },
-  printRevenueRate(revenueRate) {
+  createStatisticsRow({ name, price, count }) {
+    const row = createElement("tr", "");
+    row.classList.add("modal-items");
+    const elementName = createElement("td", name === "5+1" ? "5개+보너스불" : `${name}개`);
+    const elementPrice = createElement("td", `${price.toLocaleString()}`);
+    const elementCount = createElement("td", `${count}개`);
+    row.appendChild(elementName);
+    row.appendChild(elementPrice);
+    row.appendChild(elementCount);
+    return row;
+  },
+  renderRevenueRate(revenueRate) {
     const $boldText = document.querySelector(".bold-text");
     const $element = createElement("p", `당신의 총 수익률은 ${revenueRate}% 입니다`);
     $boldText.appendChild($element);
     $element.classList.add("modal-items");
   }
 };
-let userLottos;
-let userMoney;
-const lottoStatistics = new LottoStatistics();
-document.getElementById("purchase-button").addEventListener("click", () => {
-  userMoney = InputView.readMoney();
-  if (!userMoney) {
-    return;
+class LottoGame {
+  constructor() {
+    this.userLottos = null;
+    this.userMoney = null;
+    this.lottoStatistics = new LottoStatistics();
   }
-  userLottos = createLottos(userMoney);
-  OutputView.printUserLottos(userLottos);
-});
-function getRevenueRate() {
-  const profit = lottoStatistics.calculateProfit();
-  const revenueRate = calculateRevenueRate(profit, userMoney);
-  return revenueRate;
+  handlePurchaseLottos() {
+    this.userMoney = LottoFormView.readMoney();
+    if (!this.userMoney) {
+      return;
+    }
+    this.userLottos = createLottos(this.userMoney);
+    LottoFormView.renderUserLottos(this.userLottos);
+    LottoFormView.renderWinningLotto();
+  }
+  getRevenueRate() {
+    const profit = this.lottoStatistics.calculateProfit();
+    const revenueRate = calculateRevenueRate(profit, this.userMoney);
+    return revenueRate;
+  }
+  handleCheckResults() {
+    const winningNumbers = LottoFormView.readWinningNumbers();
+    if (!this.userLottos || !winningNumbers) {
+      return;
+    }
+    const bonusNumber = LottoFormView.readBonusNumber(winningNumbers);
+    if (!bonusNumber) {
+      return;
+    }
+    const winningLotto = { bonusNumber, lottoNumber: winningNumbers };
+    console.log(this.lottoStatistics);
+    const rankResult = this.lottoStatistics.compareLottos(this.userLottos, winningLotto);
+    LottoResultView.toggleModal();
+    LottoResultView.renderStatisticsResult(rankResult);
+    LottoResultView.renderRevenueRate(this.getRevenueRate());
+  }
+  handleCloseModal() {
+    document.querySelectorAll(".modal-items").forEach((element) => {
+      element.remove();
+    });
+    this.lottoStatistics.init();
+    LottoResultView.toggleModal();
+  }
 }
-document.getElementById("result-button").addEventListener("click", () => {
-  const winningNumbers = InputView.readWinningNumbers();
-  if (!userLottos || !winningNumbers) {
-    return;
-  }
-  const bonusNumber = InputView.readBonusNumber(winningNumbers);
-  if (!bonusNumber) {
-    return;
-  }
-  const winningLotto = { bonusNumber, lottoNumber: winningNumbers };
-  const rankResult = lottoStatistics.compareLottos(userLottos, winningLotto);
-  OutputView.printStatisticsResult(rankResult);
-  OutputView.printRevenueRate(getRevenueRate());
-});
-document.getElementById("reset-button").addEventListener("click", () => {
-  location.reload(true);
-});
-document.getElementById("reset-close-button").addEventListener("click", () => {
-  document.querySelectorAll(".modal-items").forEach((element) => {
-    element.remove();
-  });
-  lottoStatistics.init();
-  OutputView.toggleModal();
-});
+const lottoGame = new LottoGame();
+document.getElementById("purchase-button").addEventListener("click", () => lottoGame.handlePurchaseLottos());
+document.getElementById("result-button").addEventListener("click", () => lottoGame.handleCheckResults());
+document.getElementById("reset-button").addEventListener("click", () => location.reload(true));
+document.getElementById("reset-close-button").addEventListener("click", () => lottoGame.handleCloseModal());

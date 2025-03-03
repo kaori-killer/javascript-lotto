@@ -128,9 +128,6 @@ table {
     width: 100%;
     align-items: center;
 }
-.modal-close {
-    display: none;
-}
 th, tr {
     border-top: 1px solid #B4B4B4;
 }
@@ -146,12 +143,17 @@ th, td {
 .lotto-middle {
     width: 100%;
     height: 100%;
+    max-height: 500px;
     margin: 30px 0;
+    overflow-y: scroll;
 }
 .lotto-bottom {
     width: 100%;
     height: 100%;
     margin: 30px 0;
+}
+.hidden {
+    display: none;
 }
 .flex-base {
     display: flex;
@@ -226,6 +228,7 @@ input {
 }
 .app {
     height: 100%;
+    width: 100%;
     padding: 10px 20px;
 }
 .page-title {
